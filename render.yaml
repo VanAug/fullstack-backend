@@ -2,8 +2,8 @@ services:
   - type: web
     name: pseudo-imdb-backend
     env: python
-    buildCommand: ""
-    startCommand: gunicorn server.app:app
+    buildCommand: pip install pipenv && pipenv install --deploy --ignore-pipfile
+    startCommand: pipenv run gunicorn server.app:app
     envVars:
       - key: FLASK_APP
         value: server.app
