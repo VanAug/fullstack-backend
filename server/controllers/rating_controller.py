@@ -126,7 +126,6 @@ def get_reviews_for_movie(tmdb_movie_id):
             "id": rating.id,
             "score": rating.score,
             "review": rating.review,
-            "created_at": rating.created_at.isoformat() if rating.created_at else None,
             "username": username
         })
 
