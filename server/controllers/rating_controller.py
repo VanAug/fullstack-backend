@@ -3,6 +3,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from server.models.rating import Rating
 from server.models.favorites import Favorite
 from server.models import db
+from server.models.user import User  # Import User model
 
 ratings_bp = Blueprint('ratings', __name__, url_prefix='/ratings')
 
@@ -108,3 +109,25 @@ def check_user_rating(tmdb_movie_id):
         return jsonify({"message": "No rating found"}), 404
 
     return jsonify(rating.to_dict()), 200
+
+# Get all reviews for a specific movie
+@ratings_bp.route('/movie/<int:tmdb_movie_id>', methods=['GET'])
+def get_reviews_for_movie(tmdb_movie_id):
+    # Join with User table to get username
+    reviews = db.session.query(Rating, User.username).join(
+        User, Rating.user_id == User.id
+    ).filter(
+        Rating.tmdb_movie_id == tmdb_movie_id
+    ).all()
+
+    results = []
+    for rating, username in reviews:
+        results.append({
+            "id": rating.id,
+            "score": rating.score,
+            "review": rating.review,
+            "created_at": rating.created_at.isoformat() if rating.created_at else None,
+            "username": username
+        })
+
+    return jsonify(results), 200
